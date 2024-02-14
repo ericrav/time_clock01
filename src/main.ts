@@ -20,7 +20,7 @@ const sketch = (p: p5) => {
     moonGraphic = p.createGraphics(800, 800);
     moonGraphic.translate(sunGraphic.width / 2, sunGraphic.height / 2);
 
-    slider = p.createSlider(0, 100, 0);
+    slider = p.createSlider(0, 20, 0);
     slider.position(10, 10);
     slider.size(100);
 
@@ -130,6 +130,27 @@ const sketch = (p: p5) => {
     p.text(formatTime(sunrise), s / 2 + 16, 0);
     p.textAlign(p.CENTER, p.BASELINE);
     p.text(formatTime(solarNoon), 0, -s / 2 - 16);
+
+    const yesterday = SunCalc.getTimes(
+      new Date(date.getTime() - 1000 * 60 * 60 * 12),
+      position.coords.latitude,
+      position.coords.longitude
+    );
+
+    const ratio = date.getTime() >= sunrise.getTime() && date.getTime() <= sunset.getTime()
+      ? (date.getTime() - sunrise.getTime()) / (sunset.getTime() - sunrise.getTime())
+      : ((date.getTime() - yesterday.sunset.getTime()) / (yesterday.sunrise.getTime() + (1000 * 60 * 60 * 24) - yesterday.sunset.getTime())) + 1;
+
+    p.text(ratio.toFixed(2), 0, 40);
+
+    p.stroke(255);
+    p.strokeWeight(4);
+    p.noFill();
+    p.push();
+    const angle = -Math.PI * ratio;
+    p.rotate(angle);
+    p.line(s/2-8, 0, s/2+8, 0);
+    p.pop();
   };
 };
 
