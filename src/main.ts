@@ -141,9 +141,9 @@ const formatTime = (date: Date) => {
 
 new p5(sketch);
 
-function radiansToDegrees(radians: number) {
-  return ((radians * 180) / Math.PI).toFixed(2);
-}
+// function radiansToDegrees(radians: number) {
+//   return ((radians * 180) / Math.PI).toFixed(2);
+// }
 
 function distance(x: number, y: number) {
   return Math.sqrt(x * x + y * y);
