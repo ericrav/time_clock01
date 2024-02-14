@@ -141,8 +141,6 @@ const sketch = (p: p5) => {
       ? (date.getTime() - sunrise.getTime()) / (sunset.getTime() - sunrise.getTime())
       : ((date.getTime() - yesterday.sunset.getTime()) / (yesterday.sunrise.getTime() + (1000 * 60 * 60 * 24) - yesterday.sunset.getTime())) + 1;
 
-    p.text(ratio.toFixed(2), 0, 40);
-
     p.stroke(255);
     p.strokeWeight(4);
     p.noFill();
