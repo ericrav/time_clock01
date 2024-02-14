@@ -7,25 +7,38 @@ const sketch = (p: p5) => {
   let date = new Date();
   let sunGraphic: p5.Graphics;
   let moonGraphic: p5.Graphics;
+  let slider: p5.Element;
   p.setup = () => {
     p.createCanvas(800, 800);
 
     navigator.geolocation.getCurrentPosition((pos) => {
       position = pos;
-      console.log(pos);
     });
 
     sunGraphic = p.createGraphics(800, 800);
     sunGraphic.translate(sunGraphic.width / 2, sunGraphic.height / 2);
     moonGraphic = p.createGraphics(800, 800);
     moonGraphic.translate(sunGraphic.width / 2, sunGraphic.height / 2);
+
+    slider = p.createSlider(0, 100, 0);
+    slider.position(10, 10);
+    slider.size(100);
+
+    const input = p.createInput(date.toISOString().slice(0, 10));
+    input.attribute('type', 'date');
+    input.position(10, 40);
+    // @ts-ignore
+    input.changed(() => {
+      date = new Date(input.value());
+    });
   };
 
   const bg = '#000a12';
   const moon = '#e6e6b4';
 
   p.draw = () => {
-    date = new Date(date.getTime() + 1000 * 300);
+    const speed = +slider.value();
+    date = new Date(date.getTime() + 1000 * speed * p.deltaTime);
     p.translate(p.width / 2, p.height / 2);
     if (!position) return;
     const c = p.color(bg);
@@ -46,15 +59,21 @@ const sketch = (p: p5) => {
     const s = 550;
     p.ellipse(0, 0, s, s);
 
+    p.noStroke();
     const c2 = p.color(bg);
-    c2.setAlpha(220);
-    p.fill(c2);
-    p.arc(0, 0, s, s, 0, Math.PI);
+
+    for (let i = 0; i < 12; i++) {
+      c2.setAlpha(Math.pow(i, 1.2) * 5);
+      p.fill(c2);
+      const r = 1 - (i / 12)*0.2;
+      p.arc(0, 0, s*r -4, s*r -4, 0, Math.PI);
+    }
 
     p.noStroke();
     p.fill(255);
-    p.text(date.toLocaleDateString(), 0, -20);
-    p.text(formatTime(date), 0, 0);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.text(date.toLocaleDateString(), 0, -14);
+    p.text(formatTime(date), 0, 14);
 
     const times = SunCalc.getTimes(
       date,
@@ -67,15 +86,13 @@ const sketch = (p: p5) => {
       position.coords.longitude
     );
     const { azimuth, altitude } = positions;
-
-    p.text(radiansToDegrees(altitude), 0, 20);
-    p.text(radiansToDegrees(azimuth), 0, 40);
-
     const sunX = -s * 0.58 * Math.cos(azimuth - Math.PI / 2);
     const sunY = (-s / 2) * (altitude / (Math.PI / 2));
+    const sunZ = -s * 0.58 * Math.sin(azimuth - Math.PI / 2);
+    const size = 20 + 20 * distance(sunX, sunZ) / (s / 2);
     sunGraphic.noStroke();
     sunGraphic.fill(255, 255, 0);
-    sunGraphic.ellipse(sunX, sunY, 40, 40);
+    sunGraphic.ellipse(sunX, sunY, size, size);
 
     {
       const moonPositions = SunCalc.getMoonPosition(
@@ -111,8 +128,6 @@ const sketch = (p: p5) => {
     p.text(formatTime(sunrise), s / 2 + 16, 0);
     p.textAlign(p.CENTER, p.BASELINE);
     p.text(formatTime(solarNoon), 0, -s / 2 - 16);
-
-    // p.noLoop();
   };
 };
 
@@ -128,4 +143,8 @@ new p5(sketch);
 
 function radiansToDegrees(radians: number) {
   return ((radians * 180) / Math.PI).toFixed(2);
+}
+
+function distance(x: number, y: number) {
+  return Math.sqrt(x * x + y * y);
 }
