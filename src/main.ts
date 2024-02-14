@@ -72,8 +72,10 @@ const sketch = (p: p5) => {
     p.noStroke();
     p.fill(255);
     p.textAlign(p.CENTER, p.CENTER);
-    p.text(date.toLocaleDateString(), 0, -14);
-    p.text(formatTime(date), 0, 14);
+    if (speed > 0) {
+      p.text(date.toLocaleDateString(), 0, -14);
+      p.text(formatTime(date), 0, 14);
+    }
 
     const times = SunCalc.getTimes(
       date,
