@@ -5,6 +5,7 @@ import SunCalc from 'suncalc';
 const sketch = (p: p5) => {
   let position: GeolocationPosition;
   let date = new Date();
+  let hasChangedDate = false;
   let sunGraphic: p5.Graphics;
   let moonGraphic: p5.Graphics;
   let slider: p5.Element;
@@ -29,6 +30,7 @@ const sketch = (p: p5) => {
     input.position(10, 40);
     // @ts-ignore
     input.changed(() => {
+      hasChangedDate = true;
       date = new Date(input.value());
     });
   };
@@ -38,7 +40,14 @@ const sketch = (p: p5) => {
 
   p.draw = () => {
     const speed = +slider.value();
-    date = new Date(date.getTime() + 1000 * speed * p.deltaTime);
+    if (speed > 0) {
+      hasChangedDate = true;
+    }
+    if (hasChangedDate) {
+      date = new Date(date.getTime() + 1000 * speed * p.deltaTime);
+    } else {
+      date = new Date();
+    }
     p.translate(p.width / 2, p.height / 2);
     if (!position) return;
     const c = p.color(bg);
@@ -72,7 +81,7 @@ const sketch = (p: p5) => {
     p.noStroke();
     p.fill(255);
     p.textAlign(p.CENTER, p.CENTER);
-    if (speed > 0) {
+    if (hasChangedDate) {
       p.text(date.toLocaleDateString(), 0, -14);
       p.text(formatTime(date), 0, 14);
     }
